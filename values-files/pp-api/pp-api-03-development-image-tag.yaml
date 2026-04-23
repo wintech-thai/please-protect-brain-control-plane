@@ -2,4 +2,4 @@
 pp-api:
   pods:
     image:
-      tag: "develop-f7131b9"
+      tag: "main-0b6419c"
