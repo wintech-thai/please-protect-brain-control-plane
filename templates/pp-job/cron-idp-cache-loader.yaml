@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: idp-cache-loader
+spec:
+  # kubectl create job --from=cronjob/idp-cache-loader idp-cache-loader-001 -n pp-production
+  suspend: false
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          containers:
+          - name: cron-script
+            image: "asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:{{ .Values.ppJob.imageTag }}"
+            imagePullPolicy: IfNotPresent
+            command:
+            - ruby
+            args:
+            - /scripts/idp-realm-cache-loader.rb
+            env:
+            - name: TEMP_DIR
+              value: '/data/temp'
+
+            - name: REDIS_HOST
+              value: "redis-master.redis.svc.cluster.local"
+
+            - name: REDIS_PORT
+              value: "6379"
+
+            - name: ENVIRONMENT
+              value: {{ .Values.envAliasJob }}
+
+            - name: IDP_REALM
+              valueFrom:
+                secretKeyRef:
+                  name: idp-secret
+                  key: IDP_REALM
+                  optional: false
+
+            - name: IDP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: idp-secret
+                  key: IDP_URL_PREFIX
+                  optional: false
+
+            - name: IDP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: idp-secret
+                  key: IDP_CLIENT_ID
+                  optional: false
+
+            - name: IDP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: idp-secret
+                  key: KEYCLOAK_USER
+                  optional: false
+
+            - name: IDP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: idp-secret
+                  key: KEYCLOAK_PASSWORD
+                  optional: false
+
+            volumeMounts:
+            - name: temp-dir
+              mountPath: /data/temp
+
+          restartPolicy: OnFailure
+
+          volumes:
+          - name: temp-dir
+            emptyDir: {}

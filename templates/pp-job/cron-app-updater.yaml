@@ -1,0 +1,137 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: app-updater
+spec:
+  # kubectl create job --from=cronjob/app-updater app-updater-001 -n pp-development
+  suspend: true
+  schedule: "1 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          containers:
+          - name: cron-script
+            image: "asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:{{ .Values.ppJob.imageTag }}"
+            imagePullPolicy: IfNotPresent
+            command:
+              - /bin/sh
+              - -c
+              - |
+                export GIT_DEST_TOKEN="$GITEA_USERNAME:$GITEA_PASSWORD"
+                ruby /scripts/app-updater.rb
+            env:
+            - name: ENVIRONMENT 
+              value: {{ .Values.envAliasJob }}
+
+            - name: REDIS_HOST
+              value: "redis-master.redis.svc.cluster.local"
+
+            - name: REDIS_PORT
+              value: "6379"
+
+            - name: PG_HOST
+              value: postgresql.postgresql-{{ .Values.envGroup }}.svc.cluster.local
+
+            - name: PG_PORT
+              value: "5432"
+
+            - name: PG_USER
+              value: "postgres"
+
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pp-postgres-secret
+                  key: adminPasswordKey
+                  optional: false
+
+            - name: PG_DB
+              value: "pp-{{ .Values.envGroup }}"
+
+            - name: TEMP_DIR
+              value: '/data/temp'
+
+
+            - name: GIT_SOURCE_TEMPLATE
+              value: "https://github.com/wintech-thai/{repo}.git"
+
+            - name: GIT_DEST_TEMPLATE
+              value: "http://gitea-http.gitea.svc.cluster.local:3000/{repo}.git"
+
+            ### Source ###
+            - name: GIT_SOURCE_REPO1
+              value: "please-protect-data-plane"
+
+            - name: GIT_SOURCE_REPO2
+              value: "please-protect-control-plane"
+
+            - name: GIT_SOURCE_REPO3
+              value: "please-protect-control-plane"
+
+            - name: GIT_SOURCE_REF_TYPE1
+              value: "tag"
+
+            - name: GIT_SOURCE_REF_TYPE2
+              value: "tag"
+
+            - name: GIT_SOURCE_REF_TYPE3
+              value: "tag"
+
+            - name: GIT_SOURCE_REF_NAME1
+              value: "main"
+
+            - name: GIT_SOURCE_REF_NAME2
+              value: "development"
+
+            - name: GIT_SOURCE_REF_NAME3
+              value: "production"
+
+            ### Destination ###
+            - name: GIT_DEST_REPO1
+              value: "local/data-plane"
+
+            - name: GIT_DEST_REPO2
+              value: "local/control-plane-dev"
+
+            - name: GIT_DEST_REPO3
+              value: "local/control-plane-prod"
+
+            - name: GIT_DEST_REF_NAME1
+              value: "main"
+
+            - name: GIT_DEST_REF_NAME2
+              value: "development"
+
+            - name: GIT_DEST_REF_NAME3
+              value: "production"
+
+            ### Gitea ###
+            - name: GIT_PROVIDER
+              value: "gitea"
+
+            - name: GITEA_BASE_URL
+              value: "http://gitea-http.gitea.svc.cluster.local:3000"
+
+            - name: GITEA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-secret
+                  key: GIT_USER
+
+            - name: GITEA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-secret
+                  key: GIT_PASSWORD
+
+            volumeMounts:
+            - name: temp-dir
+              mountPath: /data/temp
+
+          restartPolicy: OnFailure
+
+          volumes:
+          - name: temp-dir
+            emptyDir: {}

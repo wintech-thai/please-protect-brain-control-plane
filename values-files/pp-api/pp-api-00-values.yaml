@@ -1,0 +1,55 @@
+
+pp-api:
+  enabled: true
+  nameOverride: pp-api
+
+  ingress:
+    enabled: false
+
+  podDisruptionBudget:
+    enabled: false
+
+  serviceAccount:
+    # serviceAccount.create -- create a service account and associate it with the pods
+    create: false
+    # serviceAccount.name -- name of the service account to use (and potentially create)
+    name: pp-sa
+
+  pods:
+    controller: deployment
+    #readinessProbe:
+    #  httpGet:
+    #    path: /health
+    #    port: 8080
+    #  initialDelaySeconds: 20
+    #  periodSeconds: 10
+    #  timeoutSeconds: 5
+    #  failureThreshold: 2
+
+    #livenessProbe:
+    #  httpGet:
+    #    path: /health
+    #    port: 8080
+    #  initialDelaySeconds: 20
+    #  periodSeconds: 10
+
+    image:
+      name: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-apis
+
+    #volumeMounts:
+    #  - name: secrets
+    #    mountPath: "/secrets"
+    #    readOnly: true
+
+    #volumes:
+    #  - name: secrets
+    #    secret:
+    #      secretName: gcp-sa-secret
+
+  service:
+    enabled: true
+    ports:
+      - port: 80
+        targetPort: 8080
+        protocol: TCP
+        name: http

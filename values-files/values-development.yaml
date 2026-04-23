@@ -1,0 +1,6 @@
+---
+envAlias: development
+envAliasJob: Development
+domainPpAPI: api-dev.pp-brain.dev-hubs.com
+domainPpWeb: web-dev.pp-brain.dev-hubs.com
+envGroup: dev

@@ -1,0 +1,27 @@
+pp-web:
+  pods:
+    replicas: 1
+
+    resources:
+      limits:
+        cpu: 300m
+        memory: 350Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+
+    env:
+      - name: ENV_GROUP
+        value: 'dev'
+
+      - name: ENV_RUN
+        value: 'Development'
+
+      - name: NODE_ENV
+        value: 'Development'
+
+      - name: NEXT_PUBLIC_API_URL
+        value: '/api/proxy'
+
+      - name: BACKEND_URL
+        value: 'http://pp-dev-pp-api'

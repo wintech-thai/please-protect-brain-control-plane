@@ -1,0 +1,13 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pp-crb-{{ .Values.envAlias }}
+subjects:
+- kind: ServiceAccount
+  name: pp-sa
+  namespace: pp-{{ .Values.envAlias }}
+roleRef:
+  kind: ClusterRole
+  name: pp-cr-{{ .Values.envAlias }}
+  apiGroup: rbac.authorization.k8s.io

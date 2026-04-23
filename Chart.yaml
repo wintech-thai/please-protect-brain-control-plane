@@ -1,0 +1,21 @@
+apiVersion: v2
+name: helm-please-protect
+description: A Helm chart for please-protect
+
+type: application
+version: 1.0.0
+appVersion: "1.0"
+
+dependencies:
+
+  - name: "generic-app"
+    alias: pp-web
+    condition: pp-web.enabled
+    repository: "https://charts.visonneau.fr/"
+    version: "0.0.14"
+
+  - name: "generic-app"
+    alias: pp-api
+    condition: pp-api.enabled
+    repository: "https://charts.visonneau.fr/"
+    version: "0.0.14"
