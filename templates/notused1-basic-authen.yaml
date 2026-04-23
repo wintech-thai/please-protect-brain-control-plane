@@ -1,0 +1,21 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: arkime-basic-authen
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: k8s-secret-store      # name of the SecretStore (or kind specified)
+  target:
+    name: arkime-basic-authen       # name of the k8s Secret to be created
+  data:
+  - secretKey: ARKIME_USER
+    remoteRef:
+      key: initial-secret
+      property: ARKIME_USER
+
+  - secretKey: ARKIME_PASSWORD
+    remoteRef:
+      key: initial-secret
+      property: ARKIME_PASSWORD

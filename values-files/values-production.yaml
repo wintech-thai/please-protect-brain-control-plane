@@ -1,0 +1,6 @@
+---
+envAlias: production
+envAliasJob: Production
+domainPpAPI: api.pp-brain.dev-hubs.com
+domainPpWeb: web.pp-brain.dev-hubs.com
+envGroup: prod

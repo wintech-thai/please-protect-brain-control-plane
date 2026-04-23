@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pp-api-ing
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.org/client-max-body-size: 50m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - {{ .Values.domainPpAPI }}
+      #secretName: pp-api-cert
+  rules:
+    - host: {{ .Values.domainPpAPI }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pp-{{ .Values.envGroup }}-pp-api
+                port:
+                  number: 80

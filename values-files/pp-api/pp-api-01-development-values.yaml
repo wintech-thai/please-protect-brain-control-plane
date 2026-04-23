@@ -1,0 +1,152 @@
+pp-api:
+  pods:
+    replicas: 1
+
+    resources:
+      limits:
+        cpu: 300m
+        memory: 350Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+
+    env:
+      - name: ENV_GROUP
+        value: 'dev'
+
+      # To solve ulimit(128) issue
+      - name: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+
+      - name: ASPNETCORE_ENVIRONMENT
+        value: "Development"
+
+      - name: IsDev
+        value: "true"
+
+      - name: PostgreSQL__Host
+        value: "postgresql.postgresql-dev.svc.cluster.local"
+
+      - name: PostgreSQL__Database
+        value: "pp-dev"
+
+      - name: PostgreSQL__User
+        value: "postgres"
+
+      - name: PostgreSQL__Password
+        valueFrom:
+          secretKeyRef:
+            name: pp-postgres-secret
+            key: adminPasswordKey
+            optional: false
+
+      - name: Redis__Host
+        value: "redis-master.redis.svc.cluster.local"
+
+      - name: Redis__Port
+        value: "6379"
+
+
+      - name: IDP_CLIENT_ID
+        valueFrom:
+          secretKeyRef:
+            name: idp-secret
+            key: IDP_CLIENT_ID
+            optional: false
+
+      - name: IDP_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: idp-secret
+            key: IDP_CLIENT_SECRET
+            optional: false
+
+      - name: IDP_URL_PREFIX
+        valueFrom:
+          secretKeyRef:
+            name: idp-secret
+            key: IDP_URL_PREFIX
+            optional: false
+
+      - name: IDP_REALM
+        valueFrom:
+          secretKeyRef:
+            name: idp-secret
+            key: IDP_REALM
+            optional: false
+
+      - name: LOG_ENDPOINT
+        value: "http://logstash-auditlog.logstash-auditlog.svc.cluster.local:8080"
+
+      - name: ES_USER
+        valueFrom:
+          secretKeyRef:
+            name: es-basic-authen
+            key: ES_USER
+            optional: false
+
+      - name: ES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: es-basic-authen
+            key: ES_PASSWORD
+            optional: false
+
+      - name: ES_URL
+        value: 'https://es-censor-es-http.elasticsearch.svc.cluster.local:9200'
+
+      - name: ES_INDEX_PATTERN
+        value: 'pp-*'
+
+      - name: PROM_URL
+        value: 'http://prometheus-prometheus.monitoring.svc.cluster.local:9090'
+
+      - name: LOKI_URL
+        value: 'http://loki-log.loki-log.svc.cluster.local:3100'
+
+      - name: KUBE_URL
+        value: 'https://kubernetes.default.svc.cluster.local'
+
+      - name: ARKIME_USER
+        valueFrom:
+          secretKeyRef:
+            name: arkime-basic-authen
+            key: ARKIME_USER
+            optional: false
+
+      - name: ARKIME_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: arkime-basic-authen
+            key: ARKIME_PASSWORD
+            optional: false
+
+      - name: ARKIME_URL
+        value: 'http://censor-arkime-central-viewer.censor-arkime.svc.cluster.local:8005'
+
+      - name: INITIAL_USER
+        valueFrom:
+          secretKeyRef:
+            name: idp-secret
+            key: INITIAL_USER
+            optional: false
+
+      - name: GIT_USER
+        valueFrom:
+          secretKeyRef:
+            name: gitea-secret
+            key: GIT_USER
+            optional: false
+
+      - name: GIT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: gitea-secret
+            key: GIT_PASSWORD
+            optional: false
+
+      - name: PP_CONTROL_PLANE_REMOTE_REPO
+        value: "https://github.com/wintech-thai/please-protect-control-plane.git"
+
+      - name: PP_DATA_PLANE_REMOTE_REPO
+        value: "https://github.com/wintech-thai/please-protect-data-plane.git"
